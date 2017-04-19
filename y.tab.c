@@ -69,20 +69,19 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "calc3.h"
-#include "ExecFun.h"
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
 void freeNode(nodeType *p);
-int ex(nodeType *p , int RegNum);
+int ex(nodeType *p , int RegNum , int Label);
 int yylex(void);
 
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 
 /* Line 371 of yacc.c  */
-#line 86 "y.tab.c"
+#line 85 "y.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -166,7 +165,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 19 "theyac.y"
+#line 18 "theyac.y"
 
     int iValue;                 /* integer value */
     char sIndex;                /* symbol table index */
@@ -175,7 +174,7 @@ typedef union YYSTYPE
 
 
 /* Line 387 of yacc.c  */
-#line 179 "y.tab.c"
+#line 178 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -203,7 +202,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 207 "y.tab.c"
+#line 206 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -506,10 +505,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    43,    43,    47,    48,    52,    53,    54,    55,    56,
-      57,    58,    59,    60,    61,    65,    66,    70,    71,    72,
-      73,    74,    75,    76,    77,    78,    79,    80,    81,    82,
-      83,    87,    88,    89,    90,    91
+       0,    42,    42,    46,    47,    51,    52,    53,    54,    55,
+      56,    57,    58,    59,    60,    64,    65,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    78,    79,    80,    81,
+      82,    86,    87,    88,    89,    90
 };
 #endif
 
@@ -1469,205 +1468,205 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 43 "theyac.y"
+#line 42 "theyac.y"
     { exit(0); }
     break;
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 47 "theyac.y"
+#line 46 "theyac.y"
     { ex((yyvsp[(2) - (2)].nPtr) , 0); freeNode((yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 52 "theyac.y"
+#line 51 "theyac.y"
     { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 53 "theyac.y"
+#line 52 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(1) - (2)].nPtr); }
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 54 "theyac.y"
+#line 53 "theyac.y"
     { (yyval.nPtr) = opr(PRINT, 1, (yyvsp[(2) - (3)].nPtr)); }
     break;
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 55 "theyac.y"
+#line 54 "theyac.y"
     { (yyval.nPtr) = opr('=', 2, id((yyvsp[(1) - (4)].sIndex)), (yyvsp[(3) - (4)].nPtr)); }
     break;
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 56 "theyac.y"
+#line 55 "theyac.y"
     { (yyval.nPtr) = opr(WHILE, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 57 "theyac.y"
+#line 56 "theyac.y"
     { (yyval.nPtr) = opr(IF, 2, (yyvsp[(3) - (5)].nPtr), (yyvsp[(5) - (5)].nPtr)); }
     break;
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 58 "theyac.y"
+#line 57 "theyac.y"
     { (yyval.nPtr) = opr(IF, 3, (yyvsp[(3) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr), (yyvsp[(7) - (7)].nPtr)); }
     break;
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 59 "theyac.y"
+#line 58 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 60 "theyac.y"
+#line 59 "theyac.y"
     { (yyval.nPtr) = opr(';', 2, NULL, NULL); }
     break;
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 61 "theyac.y"
+#line 60 "theyac.y"
     {  (yyval.nPtr) = opr('=', 2, id((yyvsp[(1) - (4)].nPtr)), (yyvsp[(3) - (4)].nPtr)); }
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 65 "theyac.y"
+#line 64 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr); }
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 66 "theyac.y"
+#line 65 "theyac.y"
     { (yyval.nPtr) = opr(';', 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 70 "theyac.y"
+#line 69 "theyac.y"
     { (yyval.nPtr) = con((yyvsp[(1) - (1)].iValue)); }
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 71 "theyac.y"
+#line 70 "theyac.y"
     { (yyval.nPtr) = id((yyvsp[(1) - (1)].sIndex)); }
     break;
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 72 "theyac.y"
+#line 71 "theyac.y"
     { (yyval.nPtr) = opr(UMINUS, 1, (yyvsp[(2) - (2)].nPtr)); }
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 73 "theyac.y"
+#line 72 "theyac.y"
     { (yyval.nPtr) = opr('+', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 74 "theyac.y"
+#line 73 "theyac.y"
     { (yyval.nPtr) = opr('-', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 75 "theyac.y"
+#line 74 "theyac.y"
     { (yyval.nPtr) = opr('*', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 76 "theyac.y"
+#line 75 "theyac.y"
     { (yyval.nPtr) = opr('/', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 77 "theyac.y"
+#line 76 "theyac.y"
     { (yyval.nPtr) = opr('<', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 78 "theyac.y"
+#line 77 "theyac.y"
     { (yyval.nPtr) = opr('>', 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 79 "theyac.y"
+#line 78 "theyac.y"
     { (yyval.nPtr) = opr(GE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 80 "theyac.y"
+#line 79 "theyac.y"
     { (yyval.nPtr) = opr(LE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 81 "theyac.y"
+#line 80 "theyac.y"
     { (yyval.nPtr) = opr(NE, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 82 "theyac.y"
+#line 81 "theyac.y"
     { (yyval.nPtr) = opr(EQ, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr)); }
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 83 "theyac.y"
+#line 82 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr); }
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 87 "theyac.y"
+#line 86 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].sIndex); }
     break;
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 88 "theyac.y"
+#line 87 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].sIndex); }
     break;
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 89 "theyac.y"
+#line 88 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].sIndex); }
     break;
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 90 "theyac.y"
+#line 89 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].sIndex); }
     break;
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 91 "theyac.y"
+#line 90 "theyac.y"
     { (yyval.nPtr) = (yyvsp[(2) - (2)].sIndex); }
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1671 "y.tab.c"
+#line 1670 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1899,7 +1898,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 96 "theyac.y"
+#line 95 "theyac.y"
 
 
 nodeType *con(int value) {
@@ -1961,6 +1960,84 @@ void freeNode(nodeType *p) {
     }
     free (p);
 }
+
+static int lbl;
+int ex(nodeType *p , int RegNum , int Label) {
+    int lbl1, lbl2;
+
+    if (!p) return 0;
+    switch(p->type) {
+    case typeCon:       
+        printf("\tmov R%d , %d\n",RegNum, p->con.value); 
+        break;
+    case typeId:        
+        printf("\tmov R%d, %c\n",RegNum, p->id.i + 'a'); 
+        break;
+    case typeOpr:
+        switch(p->opr.oper) {
+        case WHILE:
+            printf("L%03d:\n", lbl1 = lbl++);
+            ex(p->opr.op[0],0,0);
+            printf("\tjz\tL%03d\n", lbl2 = lbl++);
+            ex(p->opr.op[1],0,0);
+            printf("\tjmp\tL%03d\n", lbl1);
+            printf("L%03d:\n", lbl2);
+            break;
+        case IF:
+            ex(p->opr.op[0],0,lbl+1);
+            if (p->opr.nops > 2) {
+                /* if else */
+                printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                ex(p->opr.op[1],0,0);
+                printf("\tjmp\tL%03d\n", lbl2 = lbl++);
+                printf("L%03d:\n", lbl1);
+                ex(p->opr.op[2],0,0);
+                printf("L%03d:\n", lbl2);
+            } else {
+                /* if */
+                printf("\tjz\tL%03d\n", lbl1 = lbl++);
+                ex(p->opr.op[1],0,lbl);
+                printf("L%03d:\n", lbl1);
+            }
+            break;
+        case PRINT:     
+            ex(p->opr.op[0],0,0);
+            printf("\tprint\n");
+            break;
+        case '=':       
+            ex(p->opr.op[1],RegNum,0);
+            printf("\tmov %c, R%d\n", p->opr.op[0]->id.i + 'a' , RegNum);
+            break;
+        case UMINUS:    
+            ex(p->opr.op[0],0,0);
+            printf("\tneg\n");
+            break;
+	case AND : 
+	    ex(p->opr.op[0], RegNum+1,Label);
+            printf("\tjz\tL%03d\n", Label);
+	    ex(p->opr.op[1], RegNum +2,Label );
+	    break ; 
+        default:
+	    ex(p->opr.op[0], RegNum+1 , 0);
+	    ex(p->opr.op[1], RegNum +2, 0  );
+            switch(p->opr.oper) {
+            case '+':   printf("\tadd R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
+            case '-':   printf("\tsub R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break; 
+            case '*':   printf("\tmul R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
+            case '/':   printf("\tdiv R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
+            case '<':   printf("\tcompLT\n"); break;
+            case '>':   printf("\tcompGT\n"); break;
+            case GE:    printf("\tcompGE\n"); break;
+            case LE:    printf("\tcompLE\n"); break;
+            case NE:    printf("\tcompNE\n"); break;
+            case EQ:    printf("\tcompEQ\n"); break;
+            }
+        }
+    }
+    return 0;
+    }
+
+
 
 void yyerror(char *s) {
     fprintf(stdout, "%s\n", s);
