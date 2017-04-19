@@ -1,7 +1,6 @@
 #include <stdio.h>
-
+#include "ExecFun.h"
 static int lbl;
-
 int ex(nodeType *p , int RegNum) {
     int lbl1, lbl2;
 
