@@ -10,7 +10,7 @@ void yyerror(char *);
 "if"            return IF;
 "else"          return ELSE;
 "print"         return PRINT;
-"int" { printf ("found int "); return INT; }
+"int" { return INT; }
 "double" {return DOUBLE;}
 "float" {return FLOAT;}
 "long" { return LONG;}
@@ -29,7 +29,8 @@ void yyerror(char *);
 "<="            return LE;
 "=="            return EQ;
 "!="            return NE;
-
+"&&"		return AND; 
+"||"		return OR ; 
 
 [ \t\n]+        ;       /* ignore whitespace */
 

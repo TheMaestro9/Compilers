@@ -29,7 +29,9 @@ void yyerror(char *);
 "<="            return LE;
 "=="            return EQ;
 "!="            return NE;
-
+"&&"		return AND; 
+"||"		return OR ; 
+"!"		return NOT; 
 
 [ \t\n]+        ;       /* ignore whitespace */
 

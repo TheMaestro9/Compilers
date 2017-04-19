@@ -29,9 +29,10 @@ int sym[26];                    /* symbol table */
 %nonassoc IFX
 %nonassoc ELSE
 
-%left GE LE EQ NE '>' '<'
+%left GE LE EQ NE '>' '<' AND OR 
 %left '+' '-'
 %left '*' '/'
+%right NOT 
 %nonassoc UMINUS
 
 %type <nPtr> stmt expr stmt_list declare
@@ -43,7 +44,7 @@ program:
         ;
 
 function:
-          function stmt         { ex($2 , 0); freeNode($2); }
+          function stmt         { ex($2 , 0 , 0); freeNode($2); }
         | /* NULL */
         ;
 
@@ -79,6 +80,8 @@ expr:
         | expr LE expr          { $$ = opr(LE, 2, $1, $3); }
         | expr NE expr          { $$ = opr(NE, 2, $1, $3); }
         | expr EQ expr          { $$ = opr(EQ, 2, $1, $3); }
+	| expr AND expr		{ $$ = opr(AND, 2, $1, $3); } 
+	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); } 
         | '(' expr ')'          { $$ = $2; }
         ;
 
@@ -152,6 +155,10 @@ void freeNode(nodeType *p) {
             freeNode(p->opr.op[i]);
     }
     free (p);
+}
+
+void yyerror(char *s) {
+    fprintf(stdout, "%s\n", s);
 }
 
 static int lbl;
@@ -229,13 +236,6 @@ int ex(nodeType *p , int RegNum , int Label) {
     }
     return 0;
     }
-
-
-
-void yyerror(char *s) {
-    fprintf(stdout, "%s\n", s);
-}
-
 int main(void) {
    while(1){
     yyparse();
