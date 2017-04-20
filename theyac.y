@@ -10,7 +10,7 @@ nodeType *con(int value);
 void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
-
+int yydebug = 1 ; 
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 %}
@@ -26,6 +26,7 @@ int sym[26];                    /* symbol table */
 %token <sIndex> VARIABLE
 %token WHILE IF PRINT
 %token INT FLOAT LONG BOOL DOUBLE VOID 
+%token CASE BREAK SWITCH 
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -36,7 +37,7 @@ int sym[26];                    /* symbol table */
 %left GE LE EQ NE '>' '<'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list declare
+%type <nPtr> stmt expr stmt_list declare swcase case 
 
 %%
 
@@ -60,12 +61,19 @@ stmt:
         | '{' stmt_list '}'              { $$ = $2; }
 	| declare ';'			 { $$ = opr(';', 2, NULL, NULL); }
 	| declare '=' expr ';'		 {  $$ = opr('=', 2, id($1), $3); }
+	| SWITCH '(' VARIABLE ')' CASE	INTEGER ':' INTEGER   { $$ = opr(SWITCH,3, id($3) , con($6) , con($8)) ; printf ("fuck");} 
         ;
 
 stmt_list:
           stmt                  { $$ = $1; }
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
+
+swcase: 
+	SWITCH '(' VARIABLE ')' CASE INTEGER ':' stmt  { $$ = opr(SWITCH,3, $3 , $6 , $8);} 
+	; 
+case: 
+	CASE INTEGER ':' stmt	{  $$ = opr(CASE, 2, $2, $4);}
 
 expr:
           INTEGER               { $$ = con($1); }
@@ -218,6 +226,13 @@ int ex(nodeType *p , int RegNum ) {
             ex(p->opr.op[0],RegNum);
             printf("\tNOT R%d \n" ,  RegNum);
             break;
+
+	case SWITCH: 
+	
+	    break ; 
+
+	case CASE: 
+	break ; 
 	
         default:
 	    ex(p->opr.op[0], RegNum+1 );
@@ -243,7 +258,15 @@ int ex(nodeType *p , int RegNum ) {
     }
 int main(void) {
    while(1){
-    yyparse();
+      int x=yyparse();
+      switch(x)
+	{
+		case 0 : printf("Kanet 0"); break;
+		case 1 : printf("Kanet 1"); break;
+		case 2 : printf("Kanet 2"); break;
+		default : printf("Maknetsh 7aga aslan"); break;
+	}
+
     }
     return 0;
 }
