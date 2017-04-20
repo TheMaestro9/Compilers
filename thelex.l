@@ -17,6 +17,9 @@ void yyerror(char *);
 "long" { return LONG;}
 "bool" { return BOOL; }
 "void" { return VOID;}
+"break" {return BREAK; } 
+"case" {return CASE ; } 
+"switch" {return SWITCH; } 
 
 ([a-zA-Z]+[0-9_a-zA-Z]*) {   yylval.sIndex = *yytext - 'a';return VARIABLE ; }
 
@@ -24,7 +27,7 @@ void yyerror(char *);
 [0-9]+"."[0-9]*|0 { yylval.iValue = atoi (yytext); printf("float Number");  return FLOATNUM;}
 
 
-[-()<>=+*/;{}.] {   return *yytext;    }
+[-()<>=+*/;:{}.] {   return *yytext;    }
 
 ">="            return GE;
 "<="            return LE;
