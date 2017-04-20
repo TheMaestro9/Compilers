@@ -282,13 +282,13 @@ static void yy_fatal_error YY_PROTO(( yyconst char msg[] ));
 	*yy_cp = '\0'; \
 	yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 23
-#define YY_END_OF_BUFFER 24
+#define YY_NUM_RULES 24
+#define YY_END_OF_BUFFER 25
 static yyconst short int yy_accept[72] =
     {   0,
-        0,    0,   24,   22,   21,   21,   22,   22,   14,   12,
+        0,    0,   25,   23,   22,   22,   21,   23,   14,   12,
        12,   14,   14,   14,   11,   11,   11,   11,   11,   11,
-       11,   11,   11,   11,   22,   21,   18,   19,   13,    0,
+       11,   11,   11,   11,   23,   22,   18,   19,   13,    0,
        12,   16,   17,   15,   11,   11,   11,   11,   11,   11,
         2,   11,   11,   11,   11,   11,   20,   13,   11,   11,
        11,   11,    5,   11,   11,   11,   11,    9,   11,    3,
@@ -774,20 +774,25 @@ return OR ;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 35 "thelex.l"
-;       /* ignore whitespace */
+#line 34 "thelex.l"
+return NOT; 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 37 "thelex.l"
-yyerror("Unknown character");
+;       /* ignore whitespace */
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 38 "thelex.l"
+#line 39 "thelex.l"
+yyerror("Unknown character");
+	YY_BREAK
+case 24:
+YY_RULE_SETUP
+#line 40 "thelex.l"
 ECHO;
 	YY_BREAK
-#line 791 "lex.yy.c"
+#line 796 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1673,7 +1678,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 38 "thelex.l"
+#line 40 "thelex.l"
 
 int yywrap(void) {
     return 1;

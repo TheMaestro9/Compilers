@@ -33,6 +33,7 @@ void yyerror(char *);
 "||"		return OR ; 
 "!"		return NOT; 
 
+
 [ \t\n]+        ;       /* ignore whitespace */
 
 .               yyerror("Unknown character");

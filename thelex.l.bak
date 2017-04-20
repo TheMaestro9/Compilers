@@ -6,6 +6,7 @@ void yyerror(char *);
 %}
 
 %%
+"!"		return NOT; 
 "while"         return WHILE;
 "if"            return IF;
 "else"          return ELSE;

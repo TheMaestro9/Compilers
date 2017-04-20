@@ -62,11 +62,11 @@ extern int yydebug;
      ELSE = 271,
      OR = 272,
      AND = 273,
-     NE = 274,
-     EQ = 275,
-     LE = 276,
-     GE = 277,
-     NOT = 278,
+     NOT = 274,
+     NE = 275,
+     EQ = 276,
+     LE = 277,
+     GE = 278,
      UMINUS = 279
    };
 #endif
@@ -87,11 +87,11 @@ extern int yydebug;
 #define ELSE 271
 #define OR 272
 #define AND 273
-#define NE 274
-#define EQ 275
-#define LE 276
-#define GE 277
-#define NOT 278
+#define NOT 274
+#define NE 275
+#define EQ 276
+#define LE 277
+#define GE 278
 #define UMINUS 279
 
 
