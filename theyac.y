@@ -10,11 +10,8 @@ nodeType *con(int value);
 void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
-<<<<<<< HEAD
-int yydebug=1;
-=======
 int yydebug = 1 ; 
->>>>>>> origin/master
+
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 %}
@@ -41,13 +38,9 @@ int sym[26];                    /* symbol table */
 %left GE LE EQ NE '>' '<'
 %nonassoc UMINUS
 
-<<<<<<< HEAD
-%type <nPtr> stmt expr stmt_list  E2
+%type <nPtr> stmt expr stmt_list swcase case  E2
 %type <iValue> declare
-=======
-%type <nPtr> stmt expr stmt_list declare swcase case 
 
->>>>>>> origin/master
 %%
 
 program:
@@ -60,7 +53,6 @@ function:
         ;
 
 stmt:
-<<<<<<< HEAD
           ';'                                  { $$ = opr(';', 2, NULL, NULL); }
         | expr ';'                             { $$ = $1; }
         | PRINT expr ';'                       { $$ = opr(PRINT, 1, $2); }
@@ -72,19 +64,7 @@ stmt:
 	| FOR'(' stmt  E2 ';' expr ';' ')'         { $$ = opr(FOR,3,$3,$4,$6);}
 	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
 	| declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
-=======
-          ';'                            { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                       { $$ = $1; }
-        | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); }
-        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3); }
-        | WHILE '(' expr ')' stmt        { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' expr ')' stmt %prec IFX { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' expr ')' stmt ELSE stmt { $$ = opr(IF, 3, $3, $5, $7); }
-        | '{' stmt_list '}'              { $$ = $2; }
-	| declare ';'			 { $$ = opr(';', 2, NULL, NULL); }
-	| declare '=' expr ';'		 {  $$ = opr('=', 2, id($1), $3); }
 	| SWITCH '(' VARIABLE ')' CASE	INTEGER ':' INTEGER   { $$ = opr(SWITCH,3, id($3) , con($6) , con($8)) ; printf ("fuck");} 
->>>>>>> origin/master
         ;
 
 E2: 
@@ -270,10 +250,11 @@ int ex(nodeType *p , int RegNum )
             ex(p->opr.op[0],RegNum);
             printf("\tNOT R%d \n" ,  RegNum);
             break;
-<<<<<<< HEAD
-	case INCREMENT:  printf("PLUS PLUS"); break;
-	case FOR : break;
-=======
+
+	case INCREMENT: 
+	printf("PLUS PLUS"); break;
+	case FOR : 
+	    break;
 
 	case SWITCH: 
 	
@@ -281,8 +262,7 @@ int ex(nodeType *p , int RegNum )
 
 	case CASE: 
 	break ; 
-	
->>>>>>> origin/master
+
         default:
 	    ex(p->opr.op[0], RegNum+1 );
 	    ex(p->opr.op[1], RegNum +2  );
@@ -308,7 +288,7 @@ int ex(nodeType *p , int RegNum )
     return 0;
     }
 int main(void) {
-<<<<<<< HEAD
+
    while(1)
    {
     int x=yyparse();
@@ -320,18 +300,6 @@ int main(void) {
 	default : printf("Maknetsh 7aga aslan"); break;
 	}
 	
-=======
-   while(1){
-      int x=yyparse();
-      switch(x)
-	{
-		case 0 : printf("Kanet 0"); break;
-		case 1 : printf("Kanet 1"); break;
-		case 2 : printf("Kanet 2"); break;
-		default : printf("Maknetsh 7aga aslan"); break;
-	}
-
->>>>>>> origin/master
     }
 
     return 0;
