@@ -8,6 +8,7 @@ void yyerror(char *);
 %%
 "while"         return WHILE;
 "if"            return IF;
+"for"           return FOR;
 "else"          return ELSE;
 "print"         return PRINT;
 "int" { return INT; }
@@ -32,7 +33,8 @@ void yyerror(char *);
 "&&"		return AND; 
 "||"		return OR ; 
 "!"		return NOT; 
-
+"++"            return INCREMENT;
+"--"            return DECREMENT;
 
 [ \t\n]+        ;       /* ignore whitespace */
 

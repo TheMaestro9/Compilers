@@ -6,9 +6,9 @@ void yyerror(char *);
 %}
 
 %%
-"!"		return NOT; 
 "while"         return WHILE;
 "if"            return IF;
+"for"           return FOR;
 "else"          return ELSE;
 "print"         return PRINT;
 "int" { return INT; }
@@ -32,6 +32,9 @@ void yyerror(char *);
 "!="            return NE;
 "&&"		return AND; 
 "||"		return OR ; 
+"!"		return NOT; 
+"++"            return INCREMENT;
+"--"            return DECREMENT;
 
 [ \t\n]+        ;       /* ignore whitespace */
 
@@ -40,3 +43,8 @@ void yyerror(char *);
 int yywrap(void) {
     return 1;
 }
+int yylex(void)
+{
+printf("DOOOLA");
+return 0;
+};

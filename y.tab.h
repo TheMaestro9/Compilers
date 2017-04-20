@@ -50,24 +50,27 @@ extern int yydebug;
      FLOATNUM = 259,
      VARIABLE = 260,
      WHILE = 261,
-     IF = 262,
-     PRINT = 263,
-     INT = 264,
-     FLOAT = 265,
-     LONG = 266,
-     BOOL = 267,
-     DOUBLE = 268,
-     VOID = 269,
-     IFX = 270,
-     ELSE = 271,
-     OR = 272,
-     AND = 273,
-     NOT = 274,
-     NE = 275,
-     EQ = 276,
-     LE = 277,
-     GE = 278,
-     UMINUS = 279
+     FOR = 262,
+     IF = 263,
+     PRINT = 264,
+     INCREMENT = 265,
+     DECREMENT = 266,
+     INT = 267,
+     FLOAT = 268,
+     LONG = 269,
+     BOOL = 270,
+     DOUBLE = 271,
+     VOID = 272,
+     IFX = 273,
+     ELSE = 274,
+     OR = 275,
+     AND = 276,
+     NOT = 277,
+     NE = 278,
+     EQ = 279,
+     LE = 280,
+     GE = 281,
+     UMINUS = 282
    };
 #endif
 /* Tokens.  */
@@ -75,24 +78,27 @@ extern int yydebug;
 #define FLOATNUM 259
 #define VARIABLE 260
 #define WHILE 261
-#define IF 262
-#define PRINT 263
-#define INT 264
-#define FLOAT 265
-#define LONG 266
-#define BOOL 267
-#define DOUBLE 268
-#define VOID 269
-#define IFX 270
-#define ELSE 271
-#define OR 272
-#define AND 273
-#define NOT 274
-#define NE 275
-#define EQ 276
-#define LE 277
-#define GE 278
-#define UMINUS 279
+#define FOR 262
+#define IF 263
+#define PRINT 264
+#define INCREMENT 265
+#define DECREMENT 266
+#define INT 267
+#define FLOAT 268
+#define LONG 269
+#define BOOL 270
+#define DOUBLE 271
+#define VOID 272
+#define IFX 273
+#define ELSE 274
+#define OR 275
+#define AND 276
+#define NOT 277
+#define NE 278
+#define EQ 279
+#define LE 280
+#define GE 281
+#define UMINUS 282
 
 
 
@@ -109,7 +115,7 @@ typedef union YYSTYPE
 
 
 /* Line 2058 of yacc.c  */
-#line 113 "y.tab.h"
+#line 119 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

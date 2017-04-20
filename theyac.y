@@ -10,7 +10,7 @@ nodeType *con(int value);
 void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
-
+int yydebug=1;
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 %}
@@ -24,7 +24,7 @@ int sym[26];                    /* symbol table */
 
 %token <iValue> INTEGER FLOATNUM
 %token <sIndex> VARIABLE
-%token WHILE IF PRINT
+%token WHILE FOR IF PRINT INCREMENT DECREMENT
 %token INT FLOAT LONG BOOL DOUBLE VOID 
 %nonassoc IFX
 %nonassoc ELSE
@@ -36,8 +36,8 @@ int sym[26];                    /* symbol table */
 %left GE LE EQ NE '>' '<'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list declare
-
+%type <nPtr> stmt expr stmt_list  E2
+%type <iValue> declare
 %%
 
 program:
@@ -50,17 +50,31 @@ function:
         ;
 
 stmt:
-          ';'                            { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                       { $$ = $1; }
-        | PRINT expr ';'                 { $$ = opr(PRINT, 1, $2); }
-        | VARIABLE '=' expr ';'          { $$ = opr('=', 2, id($1), $3); }
-        | WHILE '(' expr ')' stmt        { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' expr ')' stmt %prec IFX { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' expr ')' stmt ELSE stmt { $$ = opr(IF, 3, $3, $5, $7); }
-        | '{' stmt_list '}'              { $$ = $2; }
-	| declare ';'			 { $$ = opr(';', 2, NULL, NULL); }
-	| declare '=' expr ';'		 {  $$ = opr('=', 2, id($1), $3); }
+          ';'                                  { $$ = opr(';', 2, NULL, NULL); }
+        | expr ';'                             { $$ = $1; }
+        | PRINT expr ';'                       { $$ = opr(PRINT, 1, $2); }
+        | VARIABLE '=' expr ';'                { $$ = opr('=', 2, id($1), $3); }
+        | WHILE '(' expr ')' stmt              { $$ = opr(WHILE, 2, $3, $5); }
+        | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
+        | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
+        | '{' stmt_list '}'		       { $$ = $2; }
+	| FOR'(' stmt  E2 ';' expr ';' ')'         { $$ = opr(FOR,3,$3,$4,$6);}
+	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
+	| declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
         ;
+
+E2: 
+          expr '<' expr         { $$ = opr('<', 2, $1, $3); }
+        | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
+        | expr GE expr          { $$ = opr(GE, 2, $1, $3); }
+        | expr LE expr          { $$ = opr(LE, 2, $1, $3); }
+        | expr NE expr          { $$ = opr(NE, 2, $1, $3); }
+        | expr EQ expr          { $$ = opr(EQ, 2, $1, $3); }
+	| expr AND expr		{ $$ = opr(AND, 2, $1, $3); } 
+	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); }
+	| NOT expr		{ $$ = opr(NOT, 1, $2); } 
+	; 	
+
 
 stmt_list:
           stmt                  { $$ = $1; }
@@ -85,23 +99,27 @@ expr:
 	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); }
 	| NOT expr		{ $$ = opr(NOT, 1, $2); } 
         | '(' expr ')'          { $$ = $2; }
+	| VARIABLE INCREMENT    { $$ = opr(INCREMENT, 1, $1); }    
+	| VARIABLE DECREMENT    { $$ = opr(DECREMENT, 1, $1);}
         ;
 
+
+
 declare: 
-	FLOAT VARIABLE  { $$ = $2; }
-	| INT VARIABLE	{ $$ = $2; }
-	| BOOL VARIABLE { $$ = $2; }
+	FLOAT VARIABLE    { $$ = $2; }
+	| INT VARIABLE	  { $$ = $2; }
+	| BOOL VARIABLE   { $$ = $2; }
 	| DOUBLE VARIABLE { $$ = $2; }
-	| LONG VARIABLE { $$ = $2; }
+	| LONG VARIABLE   { $$ = $2; }
 	;
 
 	
 
 %%
 
-nodeType *con(int value) {
+nodeType *con(int value) 
+{
     nodeType *p;
-
     /* allocate node */
     if ((p = malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
@@ -109,13 +127,12 @@ nodeType *con(int value) {
     /* copy information */
     p->type = typeCon;
     p->con.value = value;
-
     return p;
 }
 
-nodeType *id(int i) {
+nodeType *id(int i) 
+{
     nodeType *p;
-
     /* allocate node */
     if ((p = malloc(sizeof(nodeType))) == NULL)
         yyerror("out of memory");
@@ -123,12 +140,12 @@ nodeType *id(int i) {
     /* copy information */
     p->type = typeId;
     p->id.i = i;
-
     return p;
 }
 
 
-nodeType *opr(int oper, int nops, ...) {
+nodeType *opr(int oper, int nops, ...) 
+{
     va_list ap;
     nodeType *p;
     int i;
@@ -148,7 +165,8 @@ nodeType *opr(int oper, int nops, ...) {
     return p;
 }
 
-void freeNode(nodeType *p) {
+void freeNode(nodeType *p) 
+{
     int i;
 
     if (!p) return;
@@ -159,16 +177,18 @@ void freeNode(nodeType *p) {
     free (p);
 }
 
-void yyerror(char *s) {
+void yyerror(char *s) 
+{
     fprintf(stdout, "%s\n", s);
 }
 
-static int lbl;
-int ex(nodeType *p , int RegNum ) {
+static int lbl=0;
+int ex(nodeType *p , int RegNum ) 
+{
     int lbl1, lbl2;
-
     if (!p) return 0;
-    switch(p->type) {
+    switch(p->type) 
+    {
     case typeCon:       
         printf("\tmov R%d , %d\n",RegNum, p->con.value); 
         break;
@@ -177,6 +197,7 @@ int ex(nodeType *p , int RegNum ) {
         break;
     case typeOpr:
         switch(p->opr.oper) {
+
         case WHILE:
             printf("L%03d:\n", lbl1 = lbl++);
             ex(p->opr.op[0],0);
@@ -187,7 +208,8 @@ int ex(nodeType *p , int RegNum ) {
             break;
         case IF:
             ex(p->opr.op[0],0);
-            if (p->opr.nops > 2) {
+            if (p->opr.nops > 2) 
+	    {
                 /* if else */
                 printf("\tjz\tL%03d\n", lbl1 = lbl++);
                 ex(p->opr.op[1],0);
@@ -218,11 +240,14 @@ int ex(nodeType *p , int RegNum ) {
             ex(p->opr.op[0],RegNum);
             printf("\tNOT R%d \n" ,  RegNum);
             break;
-	
+	case INCREMENT:  printf("PLUS PLUS"); break;
+	case FOR : break;
         default:
 	    ex(p->opr.op[0], RegNum+1 );
 	    ex(p->opr.op[1], RegNum +2  );
-            switch(p->opr.oper) {
+            switch(p->opr.oper) 
+	    {
+	    
             case '+':   printf("\tadd R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
             case '-':   printf("\tsub R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break; 
             case '*':   printf("\tmul R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
@@ -242,8 +267,18 @@ int ex(nodeType *p , int RegNum ) {
     return 0;
     }
 int main(void) {
-   while(1){
-    yyparse();
+   while(1)
+   {
+    int x=yyparse();
+	switch(x)
+	{
+	case 0 : printf("Kanet 0"); break;
+	case 1 : printf("Kanet 1");  break;
+	case 2 : printf("Kanet 2"); break;
+	default : printf("Maknetsh 7aga aslan"); break;
+	}
+	
     }
+
     return 0;
 }
