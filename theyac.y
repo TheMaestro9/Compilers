@@ -56,14 +56,14 @@ stmt:
           ';'                                  { $$ = opr(';', 2, NULL, NULL); }
         | PRINT expr ';'                       { $$ = opr(PRINT, 1, $2); }
 	| expr ';'                             { $$ = $1; }
-	| VariDecl
+	| VariDecl			       { $$ = $1; } 	
         | WHILE '(' expr ')' stmt              { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'		       { $$ = $2; }
 	| FOR'(' VariDecl  CondtionalExpressions ';' ArithmiticExpressions ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
 	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
-	| SWITCH '(' VARIABLE ')' CASE	INTEGER ':' INTEGER   { $$ = opr(SWITCH,3, id($3) , con($6) , con($8)) ; printf ("Wasal Wello Switch Ma3ana Banat Yabney");} 
+	| swcase			       { $$ = $1;    printf ("Wasal Wello Switch Ma3ana Banat Yabney");} 
         ;
 
 VariDecl:
@@ -74,17 +74,18 @@ VariDecl:
 	
 
 
-
 stmt_list:
           stmt                  { $$ = $1; }
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
 swcase: 
-	SWITCH '(' VARIABLE ')' CASE INTEGER ':' stmt  { $$ = opr(SWITCH,3, $3 , $6 , $8);} 
+	SWITCH '(' VARIABLE ')' case  { $$ = opr(SWITCH,3, id($3) , $5 ) ;} 
 	; 
 case: 
-	CASE INTEGER ':' stmt	{  $$ = opr(CASE, 2, $2, $4);}
+	CASE INTEGER ':' stmt case	{  $$ = opr(CASE, 2, con($2), $4);}
+	|				{$$ = opr(';', 2, NULL, NULL);}
+	;
 
 expr:
           INTEGER               { $$ = con($1); }
