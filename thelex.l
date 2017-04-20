@@ -20,7 +20,7 @@ void yyerror(char *);
 "break" {return BREAK; } 
 "case" {return CASE ; } 
 "switch" {return SWITCH; } 
-
+"default" {return DEFAULT;}
 ([a-zA-Z]+[0-9_a-zA-Z]*) {   yylval.sIndex = *yytext - 'a';return VARIABLE ; }
 
 [1-9][0-9]*|0 { yylval.iValue=atoi(yytext) ;  return INTEGER;}

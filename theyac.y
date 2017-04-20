@@ -27,7 +27,7 @@ int sym[26];                    /* symbol table */
 %token <sIndex> VARIABLE
 %token WHILE FOR IF PRINT INCREMENT DECREMENT
 %token INT FLOAT LONG BOOL DOUBLE VOID 
-%token CASE BREAK SWITCH 
+%token CASE BREAK SWITCH DEFAULT
 %nonassoc IFX
 %nonassoc ELSE
 
@@ -38,7 +38,7 @@ int sym[26];                    /* symbol table */
 %left GE LE EQ NE '>' '<'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list swcase case ArithmiticExpressions  CondtionalExpressions VariDecl
+%type <nPtr> stmt expr stmt_list swcase case ArithmiticExpressions  CondtionalExpressions VariDecl IncDecExpressions ArithExForLoop
 %type <iValue> declare
 
 %%
@@ -61,9 +61,9 @@ stmt:
         | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'		       { $$ = $2; }
-	| FOR'(' VariDecl  CondtionalExpressions ';' ArithmiticExpressions ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
+	| FOR'(' VariDecl  CondtionalExpressions ';' ArithExForLoop ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
 	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
-	| swcase			       { $$ = $1;    printf ("Wasal Wello Switch Ma3ana Banat Yabney");} 
+	| swcase			       { $$ = $1;  } 
         ;
 
 VariDecl:
@@ -73,18 +73,18 @@ VariDecl:
 	;
 	
 
-
 stmt_list:
           stmt                  { $$ = $1; }
         | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
         ;
 
 swcase: 
-	SWITCH '(' VARIABLE ')' case  { $$ = opr(SWITCH,3, id($3) , $5 ) ;} 
+	SWITCH '(' VARIABLE ')' case  { $$ = opr(SWITCH,2, id($3) , $5 ) ;} 
 	; 
 case: 
-	CASE INTEGER ':' stmt case	{  $$ = opr(CASE, 2, con($2), $4);}
-	|				{$$ = opr(';', 2, NULL, NULL);}
+	 CASE INTEGER ':' stmt BREAK ';' case {  $$ = opr(CASE, 3, con($2), $4,$7);}
+	|CASE DEFAULT ':' stmt BREAK ';' case     {  $$ = opr(DEFAULT,2,$4,$7);}
+	|				  {  $$ = opr(';', 2, NULL, NULL);}
 	;
 
 expr:
@@ -94,15 +94,26 @@ expr:
 	| ArithmiticExpressions { $$ =$1; }
 	| CondtionalExpressions { $$ =$1; }
         | '(' expr ')'          { $$ = $2; }
+	| IncDecExpressions     { $$ =$1;}
         ;
+
+ArithExForLoop:
+	VARIABLE'='ArithmiticExpressions { $$ = opr('=', 2, id($1), $3); }
+	| IncDecExpressions {$$=$1;}
+	;
+
 ArithmiticExpressions:
-         expr '+' expr          { $$ = opr('+', 2, $1, $3); }
+          expr '+' expr          { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
         | expr '*' expr         { $$ = opr('*', 2, $1, $3); }
         | expr '/' expr         { $$ = opr('/', 2, $1, $3); }
-	| VARIABLE INCREMENT    { $$ = opr(INCREMENT, 1, id($1)); }    
+	;
+
+IncDecExpressions:
+	 VARIABLE INCREMENT    { $$ = opr(INCREMENT, 1, id($1)); }    
 	| VARIABLE DECREMENT    { $$ = opr(DECREMENT, 1, id($1));}
 	;
+
 CondtionalExpressions: 
           expr '<' expr         { $$ = opr('<', 2, $1, $3); }
         | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
@@ -252,22 +263,45 @@ int ex(nodeType *p , int RegNum )
             printf("\tNOT R%d \n" ,  RegNum);
             break;
 
-	case FOR : 
-	    break;
+	case FOR :
+            printf("L%03d:\n", lbl1 = lbl++);
+            ex(p->opr.op[1],RegNum);
+            printf("\tjz\tL%03d\n", lbl2 = lbl++);
+            ex(p->opr.op[3],RegNum+1);
+	    ex(p->opr.op[2],RegNum+2);
+            printf("\tjmp\tL%03d\n", lbl1);
+            printf("L%03d:\n", lbl2);
+            break;
 
 	case SWITCH: 
-	
+		ex(p->opr.op[0],RegNum);
+		ex(p->opr.op[1],RegNum);
 	    break ; 
 
+	case ';':
+	printf("L%03d:\n", lbl1 = lbl++);
+	break;
+	
+	case DEFAULT:
+	printf("L%03d:\n", lbl1 = lbl++);
+	ex(p->opr.op[0],RegNum+1);
+	break;
+
 	case CASE: 
+	printf("L%03d:\n", lbl1 = lbl++);
+	ex(p->opr.op[0],RegNum+1);
+	printf("\tcompEQ R%d, R%d, R%d \n",RegNum+2 , RegNum, RegNum+1);
+	printf("\tjz L%03d:\n", lbl);
+	ex(p->opr.op[1],RegNum+1);
+	ex(p->opr.op[2],RegNum);
 	break ; 
 
 	case INCREMENT: 
-	printf("\tINC %c",p->opr.op[0]->id.i+'a'); 
+	printf("\tINC %c\n",p->opr.op[0]->id.i+'a'); 
 
 	break;
         case DECREMENT: 
-	printf("\tINC %c",p->opr.op[0]->id.i+'a');  
+	printf("\tINC %c\n",p->opr.op[0]->id.i+'a');  
 	break;
         default:
 	    ex(p->opr.op[0], RegNum+1 );
@@ -304,8 +338,7 @@ int main(void) {
 	case 2 : printf("Kanet 2"); break;
 	default : printf("Maknetsh 7aga aslan"); break;
 	}
-	
-    }
 
+    }
     return 0;
 }
