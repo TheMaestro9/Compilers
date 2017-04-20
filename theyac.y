@@ -38,7 +38,7 @@ int sym[26];                    /* symbol table */
 %left GE LE EQ NE '>' '<'
 %nonassoc UMINUS
 
-%type <nPtr> stmt expr stmt_list swcase case  E2
+%type <nPtr> stmt expr stmt_list swcase case ArithmiticExpressions  CondtionalExpressions VariDecl
 %type <iValue> declare
 
 %%
@@ -54,30 +54,25 @@ function:
 
 stmt:
           ';'                                  { $$ = opr(';', 2, NULL, NULL); }
-        | expr ';'                             { $$ = $1; }
         | PRINT expr ';'                       { $$ = opr(PRINT, 1, $2); }
-        | VARIABLE '=' expr ';'                { $$ = opr('=', 2, id($1), $3); }
+	| expr ';'                             { $$ = $1; }
+	| VariDecl
         | WHILE '(' expr ')' stmt              { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'		       { $$ = $2; }
-	| FOR'(' stmt  E2 ';' expr ';' ')'         { $$ = opr(FOR,3,$3,$4,$6);}
+	| FOR'(' VariDecl  CondtionalExpressions ';' ArithmiticExpressions ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
 	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
-	| declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
-	| SWITCH '(' VARIABLE ')' CASE	INTEGER ':' INTEGER   { $$ = opr(SWITCH,3, id($3) , con($6) , con($8)) ; printf ("fuck");} 
+	| SWITCH '(' VARIABLE ')' CASE	INTEGER ':' INTEGER   { $$ = opr(SWITCH,3, id($3) , con($6) , con($8)) ; printf ("Wasal Wello Switch Ma3ana Banat Yabney");} 
         ;
 
-E2: 
-          expr '<' expr         { $$ = opr('<', 2, $1, $3); }
-        | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
-        | expr GE expr          { $$ = opr(GE, 2, $1, $3); }
-        | expr LE expr          { $$ = opr(LE, 2, $1, $3); }
-        | expr NE expr          { $$ = opr(NE, 2, $1, $3); }
-        | expr EQ expr          { $$ = opr(EQ, 2, $1, $3); }
-	| expr AND expr		{ $$ = opr(AND, 2, $1, $3); } 
-	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); }
-	| NOT expr		{ $$ = opr(NOT, 1, $2); } 
-	; 	
+VariDecl:
+         VARIABLE '=' expr ';'                 { $$ = opr('=', 2, id($1), $3); }
+        | declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
+	| VARIABLE ';'                             { $$ = id($1); }
+	;
+	
+
 
 
 stmt_list:
@@ -95,11 +90,20 @@ expr:
           INTEGER               { $$ = con($1); }
         | VARIABLE              { $$ = id($1); }
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
-        | expr '+' expr         { $$ = opr('+', 2, $1, $3); }
+	| ArithmiticExpressions { $$ =$1; }
+	| CondtionalExpressions { $$ =$1; }
+        | '(' expr ')'          { $$ = $2; }
+        ;
+ArithmiticExpressions:
+         expr '+' expr          { $$ = opr('+', 2, $1, $3); }
         | expr '-' expr         { $$ = opr('-', 2, $1, $3); }
         | expr '*' expr         { $$ = opr('*', 2, $1, $3); }
         | expr '/' expr         { $$ = opr('/', 2, $1, $3); }
-        | expr '<' expr         { $$ = opr('<', 2, $1, $3); }
+	| VARIABLE INCREMENT    { $$ = opr(INCREMENT, 1, id($1)); }    
+	| VARIABLE DECREMENT    { $$ = opr(DECREMENT, 1, id($1));}
+	;
+CondtionalExpressions: 
+          expr '<' expr         { $$ = opr('<', 2, $1, $3); }
         | expr '>' expr         { $$ = opr('>', 2, $1, $3); }
         | expr GE expr          { $$ = opr(GE, 2, $1, $3); }
         | expr LE expr          { $$ = opr(LE, 2, $1, $3); }
@@ -108,12 +112,7 @@ expr:
 	| expr AND expr		{ $$ = opr(AND, 2, $1, $3); } 
 	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); }
 	| NOT expr		{ $$ = opr(NOT, 1, $2); } 
-        | '(' expr ')'          { $$ = $2; }
-	| VARIABLE INCREMENT    { $$ = opr(INCREMENT, 1, $1); }    
-	| VARIABLE DECREMENT    { $$ = opr(DECREMENT, 1, $1);}
-        ;
-
-
+	; 	
 
 declare: 
 	FLOAT VARIABLE    { $$ = $2; }
@@ -206,9 +205,10 @@ int ex(nodeType *p , int RegNum )
         printf("\tmov R%d, %c\n",RegNum, p->id.i + 'a'); 
         break;
     case typeOpr:
-        switch(p->opr.oper) {
-
-        case WHILE:
+        switch(p->opr.oper) 
+	{
+         
+	case WHILE:
             printf("L%03d:\n", lbl1 = lbl++);
             ex(p->opr.op[0],0);
             printf("\tjz\tL%03d\n", lbl2 = lbl++);
@@ -251,8 +251,6 @@ int ex(nodeType *p , int RegNum )
             printf("\tNOT R%d \n" ,  RegNum);
             break;
 
-	case INCREMENT: 
-	printf("PLUS PLUS"); break;
 	case FOR : 
 	    break;
 
@@ -263,12 +261,18 @@ int ex(nodeType *p , int RegNum )
 	case CASE: 
 	break ; 
 
+	case INCREMENT: 
+	printf("\tINC %c",p->opr.op[0]->id.i+'a'); 
+
+	break;
+        case DECREMENT: 
+	printf("\tINC %c",p->opr.op[0]->id.i+'a');  
+	break;
         default:
 	    ex(p->opr.op[0], RegNum+1 );
 	    ex(p->opr.op[1], RegNum +2  );
             switch(p->opr.oper) 
 	    {
-	    
             case '+':   printf("\tadd R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
             case '-':   printf("\tsub R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break; 
             case '*':   printf("\tmul R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
