@@ -25,7 +25,8 @@ int sym[26];                    /* symbol table */
 
 %token <iValue> INTEGER FLOATNUM
 %token <sIndex> VARIABLE
-%token WHILE FOR IF PRINT INCREMENT DECREMENT
+%token WHILE FOR IF PRINT INCREMENT DECREMENT 
+%token REPEAT UNTIL TRUE FALSE CONST  
 %token INT FLOAT LONG BOOL DOUBLE VOID 
 %token CASE BREAK SWITCH DEFAULT
 %nonassoc IFX
@@ -39,7 +40,7 @@ int sym[26];                    /* symbol table */
 %nonassoc UMINUS
 
 %type <nPtr> stmt expr stmt_list swcase case ArithmiticExpressions  CondtionalExpressions VariDecl IncDecExpressions ArithExForLoop
-%type <iValue> declare
+%type <iValue> declare GeneralDeclare
 
 %%
 
@@ -64,18 +65,20 @@ stmt:
 	| FOR'(' VariDecl  CondtionalExpressions ';' ArithExForLoop ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
 	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
 	| swcase			       { $$ = $1;  } 
+	| REPEAT stmt UNTIL '('expr ')'		{ $$ = opr(REPEAT, 2, $2, $5); }
         ;
 
 VariDecl:
          VARIABLE '=' expr ';'                 { $$ = opr('=', 2, id($1), $3); }
         | declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
+	| CONST declare  '=' expr ';'		{ $$ = opr(CONST, 2, id($2), $4); }
 	| VARIABLE ';'                             { $$ = id($1); }
 	;
 	
 
 stmt_list:
           stmt                  { $$ = $1; }
-        | stmt_list stmt        { $$ = opr(';', 2, $1, $2); }
+        | stmt_list stmt        {$$ = opr('L', 2, $1, $2);  }
         ;
 
 swcase: 
@@ -95,6 +98,8 @@ expr:
 	| CondtionalExpressions { $$ =$1; }
         | '(' expr ')'          { $$ = $2; }
 	| IncDecExpressions     { $$ =$1;}
+	| TRUE			{$$ = con(1) ; }
+	| FALSE			{ $$  =con(0) ; } 
         ;
 
 ArithExForLoop:
@@ -133,6 +138,11 @@ declare:
 	| DOUBLE VARIABLE { $$ = $2; }
 	| LONG VARIABLE   { $$ = $2; }
 	;
+GeneralDeclare: 
+	CONST declare   { $$ = $2; }
+	| declare	 { $$ = $1; }
+	;
+
 
 	
 
@@ -303,6 +313,18 @@ int ex(nodeType *p , int RegNum )
         case DECREMENT: 
 	printf("\tINC %c\n",p->opr.op[0]->id.i+'a');  
 	break;
+
+	case REPEAT: 
+	    printf("L%03d:\n", lbl1 = lbl++);
+            ex(p->opr.op[0],0);
+            ex(p->opr.op[1],0);
+	    printf("\tjz\tL%03d\n", lbl1);
+            break;
+
+	case CONST: 
+	    printf("\t%c equ %d\n" ,  p->opr.op[0]->id.i + 'a' , p->opr.op[1]->con.value ) ; 
+	    break ; 
+		
         default:
 	    ex(p->opr.op[0], RegNum+1 );
 	    ex(p->opr.op[1], RegNum +2  );

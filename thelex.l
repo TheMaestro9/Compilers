@@ -21,6 +21,11 @@ void yyerror(char *);
 "case" {return CASE ; } 
 "switch" {return SWITCH; } 
 "default" {return DEFAULT;}
+"repeat" {return REPEAT ; } 
+"until" {return UNTIL; } 
+"false" {return FALSE; } 
+"true" {return TRUE ; } 
+"const" {return CONST ; } 
 ([a-zA-Z]+[0-9_a-zA-Z]*) {   yylval.sIndex = *yytext - 'a';return VARIABLE ; }
 
 [1-9][0-9]*|0 { yylval.iValue=atoi(yytext) ;  return INTEGER;}
