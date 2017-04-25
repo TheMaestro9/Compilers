@@ -1,0 +1,16 @@
+int x=12;
+switch(x)
+{
+case 1:
+y=23;
+break;
+case 2:
+y=24;
+break;
+case 3:
+y=25;
+break;
+default:
+y=20;
+break;
+}

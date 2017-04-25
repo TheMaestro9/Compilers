@@ -11,7 +11,7 @@ void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
 int yydebug = 1 ; 
-
+extern  FILE *yyin;
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 %}
@@ -40,7 +40,7 @@ int sym[26];                    /* symbol table */
 %nonassoc UMINUS
 
 %type <nPtr> stmt expr stmt_list swcase case ArithmiticExpressions  CondtionalExpressions VariDecl IncDecExpressions ArithExForLoop
-%type <iValue> declare GeneralDeclare
+%type <iValue> declare 
 
 %%
 
@@ -138,10 +138,7 @@ declare:
 	| DOUBLE VARIABLE { $$ = $2; }
 	| LONG VARIABLE   { $$ = $2; }
 	;
-GeneralDeclare: 
-	CONST declare   { $$ = $2; }
-	| declare	 { $$ = $1; }
-	;
+
 
 
 	
@@ -348,19 +345,43 @@ int ex(nodeType *p , int RegNum )
     }
     return 0;
     }
-int main(void) {
 
-   while(1)
-   {
-    int x=yyparse();
-	switch(x)
+int main(int argc, char *argv[]) 
+{
+	if(argc==1)
 	{
-	case 0 : printf("Kanet 0"); break;
-	case 1 : printf("Kanet 1");  break;
-	case 2 : printf("Kanet 2"); break;
-	default : printf("Maknetsh 7aga aslan"); break;
-	}
+		   while(1)
+		   {
+		    int x=yyparse();
+			switch(x)
+			{
+			case 0 : printf("Memory Issue"); break;
+			case 1 : printf("Grammer Issue");  break;
+			case 2 : printf("You Have Issue"); break;
+			default : printf("Maknetsh 7aga aslan"); break;
+			}
 
-    }
-    return 0;
+		    }
+		    return 0;
+	}
+	
+	if(argc==2)
+	{
+		FILE *myfile = fopen(argv[1], "r");
+	
+			
+		if (!myfile) 
+		{
+		printf("Error Can't Read Files \n");
+			return -1;
+		}
+		// set flex to read from it instead of defaulting to STDIN:
+		yyin = myfile;
+		
+		// parse through the input until there is no more:
+		do {
+			yyparse();
+		} while (!feof(yyin));
+       }
+
 }
