@@ -82,11 +82,11 @@ stmt_list:
         ;
 
 swcase: 
-	SWITCH '(' VARIABLE ')' case  { $$ = opr(SWITCH,2, id($3) , $5 ) ;} 
+	SWITCH '(' VARIABLE ')'  '{'case '}'  { $$ = opr(SWITCH,2, id($3) , $6 ) ;} 
 	; 
 case: 
 	 CASE INTEGER ':' stmt BREAK ';' case {  $$ = opr(CASE, 3, con($2), $4,$7);}
-	|CASE DEFAULT ':' stmt BREAK ';' case     {  $$ = opr(DEFAULT,2,$4,$7);}
+	|DEFAULT ':' stmt BREAK ';' case     {  $$ = opr(DEFAULT,2,$3,$6);}
 	|				  {  $$ = opr(';', 2, NULL, NULL);}
 	;
 
