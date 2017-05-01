@@ -55,22 +55,31 @@ extern int yydebug;
      PRINT = 264,
      INCREMENT = 265,
      DECREMENT = 266,
-     INT = 267,
-     FLOAT = 268,
-     LONG = 269,
-     BOOL = 270,
-     DOUBLE = 271,
-     VOID = 272,
-     IFX = 273,
-     ELSE = 274,
-     OR = 275,
-     AND = 276,
-     NOT = 277,
-     NE = 278,
-     EQ = 279,
-     LE = 280,
-     GE = 281,
-     UMINUS = 282
+     REPEAT = 267,
+     UNTIL = 268,
+     TRUE = 269,
+     FALSE = 270,
+     CONST = 271,
+     INT = 272,
+     FLOAT = 273,
+     LONG = 274,
+     BOOL = 275,
+     DOUBLE = 276,
+     VOID = 277,
+     CASE = 278,
+     BREAK = 279,
+     SWITCH = 280,
+     DEFAULT = 281,
+     IFX = 282,
+     ELSE = 283,
+     OR = 284,
+     AND = 285,
+     NOT = 286,
+     NE = 287,
+     EQ = 288,
+     LE = 289,
+     GE = 290,
+     UMINUS = 291
    };
 #endif
 /* Tokens.  */
@@ -83,22 +92,31 @@ extern int yydebug;
 #define PRINT 264
 #define INCREMENT 265
 #define DECREMENT 266
-#define INT 267
-#define FLOAT 268
-#define LONG 269
-#define BOOL 270
-#define DOUBLE 271
-#define VOID 272
-#define IFX 273
-#define ELSE 274
-#define OR 275
-#define AND 276
-#define NOT 277
-#define NE 278
-#define EQ 279
-#define LE 280
-#define GE 281
-#define UMINUS 282
+#define REPEAT 267
+#define UNTIL 268
+#define TRUE 269
+#define FALSE 270
+#define CONST 271
+#define INT 272
+#define FLOAT 273
+#define LONG 274
+#define BOOL 275
+#define DOUBLE 276
+#define VOID 277
+#define CASE 278
+#define BREAK 279
+#define SWITCH 280
+#define DEFAULT 281
+#define IFX 282
+#define ELSE 283
+#define OR 284
+#define AND 285
+#define NOT 286
+#define NE 287
+#define EQ 288
+#define LE 289
+#define GE 290
+#define UMINUS 291
 
 
 
@@ -106,16 +124,17 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 18 "theyac.y"
+#line 30 "theyac.y"
 
     int iValue;                 /* integer value */
+    float fValue;               /* Float Value */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
     char * sChar ; 
 
 
 /* Line 2058 of yacc.c  */
-#line 119 "y.tab.h"
+#line 138 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -2,29 +2,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "calc3.h"
 /* prototypes */
 nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
+nodeType *conf(float value);
 void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
-int yydebug = 1 ; 
+int yydebug = 1 ;
+int Count=0;
 extern  FILE *yyin;
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
- 
+int type[26];
+int RHS [100];
+int ErrorsLine[100];
+char * Errors[100];\
+char ErrorsID[100];
+int CountErrors=0;
+extern int yylineno;
+void PrintErrors();
 %}
 
 %union {
     int iValue;                 /* integer value */
+    float fValue;               /* Float Value */
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
     char * sChar ; 
 };
 
-%token <iValue> INTEGER FLOATNUM
+%token <iValue> INTEGER
+%token <fValue> FLOATNUM
 %token <sIndex> VARIABLE
 %token WHILE FOR IF PRINT INCREMENT DECREMENT 
 %token REPEAT UNTIL TRUE FALSE CONST  
@@ -46,7 +58,18 @@ int sym[26];                    /* symbol table */
 %%
 
 program:
-        function                { exit(0); }
+        function    {
+			PrintErrors();
+			int i=0;
+			for(i;i<26;i++)
+			{
+			if(sym[i]==1 || sym[i]==0)
+			{
+				printf("Warning : Variable %c is not used \n",i+'a');
+			}
+			}
+			exit(0); 
+                    }
         ;
 
 function:
@@ -64,14 +87,54 @@ stmt:
         | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'		       { $$ = $2; }
 	| FOR'(' VariDecl  CondtionalExpressions ';' ArithExForLoop ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
-	| declare ';'			       { $$ = opr(';', 2, NULL, NULL); }
+	| declare ';'			     	{ 
+							if ( sym[id($1)->id.i] == -1 ) 
+							{
+							$$ = opr('L', 2, NULL, NULL);
+							sym[id($1)->id.i] = 0 ; 
+							}
+							else 	 
+							{
+							$$ = NULL ;
+							ErrorsLine[CountErrors]=yylineno;
+							ErrorsID[CountErrors]=id($1)->id.i + 'a';
+							Errors[CountErrors++]="Line %d : Error %c is declared before\n" ; 
+							}
+	
+					       }
+
 	| swcase			       { $$ = $1;  } 
 	| REPEAT stmt UNTIL '('expr ')'		{ $$ = opr(REPEAT, 2, $2, $5); }
         ;
 
 VariDecl:
-         VARIABLE '=' expr ';'                 { $$ = opr('=', 2, id($1), $3); }
-        | declare '=' expr ';'		       { 
+         VARIABLE '=' expr ';'    { 
+					if(sym[id($1)->id.i]==-1)
+					 {
+					 ErrorsLine[CountErrors]=yylineno;
+					 ErrorsID[CountErrors]=id($1)->id.i + 'a';
+                                         Errors[CountErrors++]="Line %d : Error : Using Variable %c Without Being Declared\n" ;
+					 $$=NULL;
+					 }
+					 else
+					 {
+	                                sym[id($1)->id.i]=1;
+	                                $$ = opr('=', 2, id($1), $3);
+					int i=0;
+					for(i;i<Count;i++)
+					{
+					     if(type[id($1)->id.i]!=RHS[i])
+						{
+					 ErrorsLine[CountErrors]=yylineno;
+					 ErrorsID[CountErrors]=id($1)->id.i + 'a';
+                                         Errors[CountErrors++]="Line %d : Warning: Improper usage of variables %c with regard to their type\n" ;
+					 break;
+						}
+					}
+	                                Count=0;
+					}
+				}
+        | declare '=' expr ';'		       {	
 							if ( sym[id($1)->id.i] == -1 ) 
 							{
 							$$ = opr('=', 2, id($1), $3);
@@ -80,11 +143,50 @@ VariDecl:
 							else 	 
 							{
 							$$ = NULL ; 
-							printf("error %c is declared before\n", id($1)->id.i + 'a' ) ; 
+							ErrorsLine[CountErrors]=yylineno;
+							ErrorsID[CountErrors]=id($1)->id.i + 'a';
+							Errors[CountErrors++]="Line %d : Error %c is declared before\n" ;  
 							}
-	
-					       }
-	| CONST declare  '=' expr ';'		{ $$ = opr(CONST, 2, id($2), $4); }
+							int i=0;
+							for(i;i<Count;i++)
+							{
+							     if(type[id($1)->id.i]!=RHS[i])
+								{
+									 ErrorsLine[CountErrors]=yylineno;
+									 ErrorsID[CountErrors]=id($1)->id.i + 'a';
+									 Errors[CountErrors++]="Line %d : Warning: Improper usage of variables %c with regard to their type\n" ;	
+									break;
+								}
+							}
+							Count=0;
+					               }
+	| CONST declare  '=' expr ';'{                 
+	                                               if ( sym[id($2)->id.i] == -1 ) 
+							{
+							$$ = opr(CONST, 2, id($2), $4); 
+							sym[id($2)->id.i] = 1 ; 
+							}
+							else 	 
+							{
+							$$ = NULL ; 
+							ErrorsLine[CountErrors]=yylineno;
+							ErrorsID[CountErrors]=id($2)->id.i + 'a';
+							Errors[CountErrors++]="Line %d : Error %c is declared before\n" ; 
+							}
+							int i=0;
+							for(i;i<Count;i++)
+							{
+							     if(type[id($2)->id.i]!=RHS[i])
+								{
+									ErrorsLine[CountErrors]=yylineno;
+								        ErrorsID[CountErrors]=id($2)->id.i + 'a';
+                                                                        Errors[CountErrors++]="Line %d : Warning: Improper usage of variables %c with regard to their type\n" ;
+									break;
+								}
+							}
+							Count=0;
+				                        }
+
 	| VARIABLE ';'                             { $$ = id($1); }
 	;
 	
@@ -104,15 +206,36 @@ case:
 	;
 
 expr:
-          INTEGER               { $$ = con($1); }
-        | VARIABLE              { $$ = id($1); }
+          INTEGER               { $$ = con($1); RHS[Count++]=2;  }
+	| FLOATNUM              { $$ = conf($1);RHS[Count++]=1; } 
+        | VARIABLE              { 
+					if(sym[id($1)->id.i]==-1)
+					{
+							ErrorsLine[CountErrors]=yylineno;
+							ErrorsID[CountErrors]=id($1)->id.i + 'a';
+							Errors[CountErrors++]="Line %d : Using Variable %c Without Being Declared\n" ;
+					$$=NULL;
+					}
+					else
+					{
+					$$ = id($1);
+					if(sym[id($1)->id.i]!=0)
+					sym[id($1)->id.i]=2;
+					else 
+					{
+					ErrorsLine[CountErrors]=yylineno;
+					ErrorsID[CountErrors]=id($1)->id.i + 'a';
+					Errors[CountErrors++]="Line %d : Variable %c used without being initialized\n" ;
+					}
+					}
+				}
         | '-' expr %prec UMINUS { $$ = opr(UMINUS, 1, $2); }
 	| ArithmiticExpressions { $$ =$1; }
 	| CondtionalExpressions { $$ =$1; }
         | '(' expr ')'          { $$ = $2; }
 	| IncDecExpressions     { $$ =$1;}
-	| TRUE			{$$ = con(1) ; }
-	| FALSE			{ $$  =con(0) ; } 
+	| TRUE			{$$ = con(1) ;RHS[Count++]=3; }
+	| FALSE			{ $$  =con(0) ;RHS[Count++]=3; } 
         ;
 
 ArithExForLoop:
@@ -145,11 +268,11 @@ CondtionalExpressions:
 	; 	
 
 declare: 
-	FLOAT VARIABLE    { $$ = $2; }
-	| INT VARIABLE	  { $$ = $2; }
-	| BOOL VARIABLE   { $$ = $2; }
-	| DOUBLE VARIABLE { $$ = $2; }
-	| LONG VARIABLE   { $$ = $2; }
+	FLOAT VARIABLE    { $$ = $2; type[id($2)->id.i] = 1 ; 	}
+	| INT VARIABLE	  { $$ = $2; type[id($2)->id.i] = 2 ;   }
+	| BOOL VARIABLE   { $$ = $2; type[id($2)->id.i] = 3 ;   }
+	| DOUBLE VARIABLE { $$ = $2; type[id($2)->id.i] = 4 ;   }
+	| LONG VARIABLE   { $$ = $2; type[id($2)->id.i] = 5 ;   }
 	;
 
 
@@ -168,6 +291,21 @@ nodeType *con(int value)
     /* copy information */
     p->type = typeCon;
     p->con.value = value;
+
+    return p;
+}
+
+nodeType *conf(float value) 
+{
+    nodeType *p;
+    /* allocate node */
+    if ((p = malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeConf;
+    p->con.fvalue = value;
+
     return p;
 }
 
@@ -220,7 +358,7 @@ void freeNode(nodeType *p)
 
 void yyerror(char *s) 
 {
-    fprintf(stdout, "%s\n", s);
+     fprintf(stdout, " %s At Line %d:\n", s,yylineno);
 }
 
 static int lbl=0;
@@ -233,6 +371,9 @@ int ex(nodeType *p , int RegNum )
     case typeCon:       
         printf("\tmov R%d , %d\n",RegNum, p->con.value); 
         break;
+    case typeConf:       
+        printf("\tmov R%d , %f\n",RegNum, p->con.fvalue); 
+        break;	
     case typeId:        
         printf("\tmov R%d, %c\n",RegNum, p->id.i + 'a'); 
         break;
@@ -358,17 +499,28 @@ int ex(nodeType *p , int RegNum )
     }
     return 0;
     }
+	void PrintErrors()
+	{
+	
+	int i=0;
+	for(i;i<CountErrors;i++)
+	{
+	printf(Errors[i],ErrorsLine[i],ErrorsID[i]);
+	}
+
+	}
+
 
 int main(int argc, char *argv[]) 
 {
-int i = 0 ;
-	for ( i ; i < 26 ; i ++ ) 
-	sym [i] = -1 ;
-	if(argc==1)
-	{
+	int i = 0 ;
+	for ( i ; i < 26 ; i ++ )sym [i] = -1 ;
+		if(argc==1)
+		{
 		   while(1)
 		   {
 		    int x=yyparse();
+		    PrintErrors();
 			switch(x)
 			{
 			case 0 : printf("Memory Issue"); break;
@@ -383,9 +535,7 @@ int i = 0 ;
 	
 	if(argc==2)
 	{
-		FILE *myfile = fopen(argv[1], "r");
-	
-			
+		FILE *myfile = fopen(argv[1], "r");	
 		if (!myfile) 
 		{
 		printf("Error Can't Read Files \n");
@@ -397,7 +547,8 @@ int i = 0 ;
 		// parse through the input until there is no more:
 		do {
 			yyparse();
-		} while (!feof(yyin));
-       }
 
+		} while (!feof(yyin));
+
+       }
 }

@@ -3,9 +3,11 @@
 #include "calc3.h"
 #include "y.tab.h"
 void yyerror(char *);
+int yylineno=1;
 %}
 
 %%
+ 
 "while"         return WHILE;
 "if"            return IF;
 "for"           return FOR;
@@ -25,11 +27,12 @@ void yyerror(char *);
 "until" {return UNTIL; } 
 "false" {return FALSE; } 
 "true" {return TRUE ; } 
-"const" {return CONST ; } 
+"const" {return CONST ; }
+"\n"     ++yylineno;
 ([a-zA-Z]+[0-9_a-zA-Z]*) {   yylval.sIndex = *yytext - 'a';return VARIABLE ; }
 
 [1-9][0-9]*|0 { yylval.iValue=atoi(yytext) ;  return INTEGER;}
-[0-9]+"."[0-9]*|0 { yylval.iValue = atoi (yytext); printf("float Number");  return FLOATNUM;}
+[0-9]+"."[0-9]*|0 { yylval.fValue = atof (yytext);  return FLOATNUM;}
 
 
 [-()<>=+*/;:{}.] {   return *yytext;    }
@@ -42,12 +45,12 @@ void yyerror(char *);
 "||"		return OR ; 
 "!"		return NOT; 
 "++"            return INCREMENT;
-"--"            return DECREMENT;
-
-[ \t\n]+        ;       /* ignore whitespace */
+"--"            return DECREMENT;           
+[ \t]+        ;       /* ignore whitespace */
 
 .               yyerror("Unknown character");
 %%
 int yywrap(void) {
     return 1;
-}
+	}
+
