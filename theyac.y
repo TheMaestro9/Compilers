@@ -14,6 +14,7 @@ int yydebug = 1 ;
 extern  FILE *yyin;
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
+ 
 %}
 
 %union {
@@ -70,7 +71,19 @@ stmt:
 
 VariDecl:
          VARIABLE '=' expr ';'                 { $$ = opr('=', 2, id($1), $3); }
-        | declare '=' expr ';'		       { $$ = opr('=', 2, id($1), $3); }
+        | declare '=' expr ';'		       { 
+							if ( sym[id($1)->id.i] == -1 ) 
+							{
+							$$ = opr('=', 2, id($1), $3);
+							sym[id($1)->id.i] = 1 ; 
+							}
+							else 	 
+							{
+							$$ = NULL ; 
+							printf("error %c is declared before\n", id($1)->id.i + 'a' ) ; 
+							}
+	
+					       }
 	| CONST declare  '=' expr ';'		{ $$ = opr(CONST, 2, id($2), $4); }
 	| VARIABLE ';'                             { $$ = id($1); }
 	;
@@ -348,6 +361,9 @@ int ex(nodeType *p , int RegNum )
 
 int main(int argc, char *argv[]) 
 {
+int i = 0 ;
+	for ( i ; i < 26 ; i ++ ) 
+	sym [i] = -1 ;
 	if(argc==1)
 	{
 		   while(1)
