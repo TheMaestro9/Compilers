@@ -1,7 +1,6 @@
-int x=23;
-int y;
-int y;
-int z=s+2;
-int u;
-int w=x+2;
-if;
+
+{ 
+	int x ; 
+
+} 
+int x ;

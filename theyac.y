@@ -18,12 +18,14 @@ extern  FILE *yyin;
 void yyerror(char *s);
 int sym[26];                    /* symbol table */
 int type[26];
+int scopes [26] ; 
 int RHS [100];
 int ErrorsLine[100];
 char * Errors[100];\
 char ErrorsID[100];
 int CountErrors=0;
 extern int yylineno;
+extern int scope ; 
 void PrintErrors();
 %}
 
@@ -85,13 +87,22 @@ stmt:
         | WHILE '(' expr ')' stmt              { $$ = opr(WHILE, 2, $3, $5); }
         | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
         | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
-        | '{' stmt_list '}'		       { $$ = $2; }
+        | '{' stmt_list '}'		       {
+						 int i = 0  ; 
+						 for ( i ; i < 26 ; i ++ ) 
+							{
+								if ( scopes[i] > scope ) 
+									sym [ i ] = -1 ; 
+							}
+	
+						$$ = $2;   }
 	| FOR'(' VariDecl  CondtionalExpressions ';' ArithExForLoop ')'stmt { $$ = opr(FOR,4,$3,$4,$6,$8);}
 	| declare ';'			     	{ 
 							if ( sym[id($1)->id.i] == -1 ) 
 							{
 							$$ = opr('L', 2, NULL, NULL);
 							sym[id($1)->id.i] = 0 ; 
+							scopes[id($1)->id.i] = scope ; 
 							}
 							else 	 
 							{
@@ -139,6 +150,7 @@ VariDecl:
 							{
 							$$ = opr('=', 2, id($1), $3);
 							sym[id($1)->id.i] = 1 ; 
+							scopes[id($1)->id.i] = scope ; 
 							}
 							else 	 
 							{
@@ -165,6 +177,7 @@ VariDecl:
 							{
 							$$ = opr(CONST, 2, id($2), $4); 
 							sym[id($2)->id.i] = 1 ; 
+							scopes[id($2)->id.i] = scope ; 
 							}
 							else 	 
 							{

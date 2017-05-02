@@ -4,6 +4,7 @@
 #include "y.tab.h"
 void yyerror(char *);
 int yylineno=1;
+int scope = 0 ; 
 %}
 
 %%
@@ -35,8 +36,9 @@ int yylineno=1;
 [0-9]+"."[0-9]*|0 { yylval.fValue = atof (yytext);  return FLOATNUM;}
 
 
-[-()<>=+*/;:{}.] {   return *yytext;    }
-
+[-()<>=+*/;:.] {   return *yytext;    }
+"{"		{ scope ++ ; return *yytext; } 
+"}"		{ scope -- ; return *yytext; } 
 ">="            return GE;
 "<="            return LE;
 "=="            return EQ;
