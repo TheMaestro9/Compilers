@@ -1,3 +1,44 @@
 	mov R0 , 23
 	mov x, R0
-Line 3 : Error x is declared before
+	mov R0 , 0
+	mov h, R0
+	mov R0, x
+L000:
+	mov R1 , 2
+	compEQ R2, R0, R1 
+	jz L001:
+	mov R1 , 2
+	mov h, R1
+L001:
+	mov R1 , 23
+	compEQ R2, R0, R1 
+	jz L002:
+L003:
+	mov R2, i
+	mov R3 , 5
+	compLT R1, R2, R3 
+	jz	L004
+	INC x
+	INC i
+	jmp	L003
+L004:
+L005:
+	mov R1 , 3
+	compEQ R2, R0, R1 
+	jz L006:
+	mov R1, h
+	mov R2 , 8
+	compEQ R0, R1, R2 
+	jz	L006
+	mov R1 , 3
+	mov h, R1
+L006:
+L007:
+	mov R1 , 2
+	mov h, R1
+	mov R0 , 2
+	mov k, R0
+Line 12 : Error : Using Variable y Without Being Declared
+Warning : Variable h is not used 
+Warning : Variable k is not used 
+Warning : Variable x is not used 

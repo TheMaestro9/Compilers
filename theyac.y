@@ -9,6 +9,7 @@ nodeType *opr(int oper, int nops, ...);
 nodeType *id(int i);
 nodeType *con(int value);
 nodeType *conf(float value);
+nodeType *conc(char value) ;
 void freeNode(nodeType *p);
 int ex(nodeType *p , int RegNum );
 int yylex(void);
@@ -32,17 +33,19 @@ void PrintErrors();
 %union {
     int iValue;                 /* integer value */
     float fValue;               /* Float Value */
+    char cValue;
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
     char * sChar ; 
 };
 
 %token <iValue> INTEGER
+%token <cValue> CHARACTER
 %token <fValue> FLOATNUM
 %token <sIndex> VARIABLE
 %token WHILE FOR IF PRINT INCREMENT DECREMENT 
 %token REPEAT UNTIL TRUE FALSE CONST  
-%token INT FLOAT LONG BOOL DOUBLE VOID 
+%token INT FLOAT LONG BOOL DOUBLE VOID CHAR 
 %token CASE BREAK SWITCH DEFAULT
 %nonassoc IFX
 %nonassoc ELSE
@@ -85,8 +88,8 @@ stmt:
 	| expr ';'                             { $$ = $1; }
 	| VariDecl			       { $$ = $1; } 	
         | WHILE '(' expr ')' stmt              { $$ = opr(WHILE, 2, $3, $5); }
-        | IF '(' expr ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
-        | IF '(' expr ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
+        | IF '(' CondtionalExpressions ')' stmt %prec IFX       { $$ = opr(IF, 2, $3, $5); }
+        | IF '(' CondtionalExpressions ')' stmt ELSE stmt       { $$ = opr(IF, 3, $3, $5, $7); }
         | '{' stmt_list '}'		       {
 						 int i = 0  ; 
 						 for ( i ; i < 26 ; i ++ ) 
@@ -220,8 +223,9 @@ case:
 
 expr:
           INTEGER               { $$ = con($1); RHS[Count++]=2;  }
-	| FLOATNUM              { $$ = conf($1);RHS[Count++]=1; } 
-        | VARIABLE              { 
+	| FLOATNUM              { $$ = conf($1);RHS[Count++]=1;  }
+	| CHARACTER		{ $$ = conc($1);RHS[Count++]=4;  }
+        | VARIABLE              {	RHS[Count++]=type[id($1)->id.i];
 					if(sym[id($1)->id.i]==-1)
 					{
 							ErrorsLine[CountErrors]=yylineno;
@@ -277,14 +281,15 @@ CondtionalExpressions:
         | expr EQ expr          { $$ = opr(EQ, 2, $1, $3); }
 	| expr AND expr		{ $$ = opr(AND, 2, $1, $3); } 
 	| expr OR expr		{ $$ = opr(OR, 2, $1, $3); }
-	| NOT expr		{ $$ = opr(NOT, 1, $2); } 
+	| NOT expr		{ $$ = opr(NOT, 1, $2); }
+	| expr                  { $$ = opr(EQ,2,$1,con(1));}
 	; 	
 
 declare: 
 	FLOAT VARIABLE    { $$ = $2; type[id($2)->id.i] = 1 ; 	}
 	| INT VARIABLE	  { $$ = $2; type[id($2)->id.i] = 2 ;   }
 	| BOOL VARIABLE   { $$ = $2; type[id($2)->id.i] = 3 ;   }
-	| DOUBLE VARIABLE { $$ = $2; type[id($2)->id.i] = 4 ;   }
+	| CHAR VARIABLE   { $$ = $2; type[id($2)->id.i] = 4 ;   }
 	| LONG VARIABLE   { $$ = $2; type[id($2)->id.i] = 5 ;   }
 	;
 
@@ -293,6 +298,19 @@ declare:
 	
 
 %%
+nodeType *conc(char value) 
+{
+    nodeType *p;
+    /* allocate node */
+    if ((p = malloc(sizeof(nodeType))) == NULL)
+        yyerror("out of memory");
+
+    /* copy information */
+    p->type = typeConC;
+    p->con.cvalue = value;
+
+    return p;
+}
 
 nodeType *con(int value) 
 {
@@ -381,6 +399,9 @@ int ex(nodeType *p , int RegNum )
     if (!p) return 0;
     switch(p->type) 
     {
+    case typeConC:
+	printf("\tmov R%d , %c\n",RegNum, p->con.cvalue);
+	break;
     case typeCon:       
         printf("\tmov R%d , %d\n",RegNum, p->con.value); 
         break;
@@ -438,6 +459,7 @@ int ex(nodeType *p , int RegNum )
             break;
 
 	case FOR :
+	    
             printf("L%03d:\n", lbl1 = lbl++);
             ex(p->opr.op[1],RegNum);
             printf("\tjz\tL%03d\n", lbl2 = lbl++);
@@ -445,6 +467,7 @@ int ex(nodeType *p , int RegNum )
 	    ex(p->opr.op[2],RegNum+2);
             printf("\tjmp\tL%03d\n", lbl1);
             printf("L%03d:\n", lbl2);
+	    
             break;
 
 	case SWITCH: 
@@ -498,11 +521,11 @@ int ex(nodeType *p , int RegNum )
             case '-':   printf("\tsub R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break; 
             case '*':   printf("\tmul R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
             case '/':   printf("\tdiv R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
-            case '<':   printf("\tcompLT\n"); break;
-            case '>':   printf("\tcompGT\n"); break;
-            case GE:    printf("\tcompGE\n"); break;
-            case LE:    printf("\tcompLE\n"); break;
-            case NE:    printf("\tcompNE\n"); break;
+            case '<':   printf("\tcompLT R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
+            case '>':   printf("\tcompGT R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
+            case GE:    printf("\tcompGE R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
+            case LE:    printf("\tcompLE R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
+            case NE:    printf("\tcompNE R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
             case EQ:    printf("\tcompEQ R%d, R%d, R%d \n",RegNum , RegNum+1, RegNum+2); break;
 	    case AND:   printf("\tAND R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;
 	    case OR:   printf("\tOR R%d, R%d, R%d\n", RegNum , RegNum+1, RegNum+2); break;

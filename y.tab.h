@@ -47,76 +47,80 @@ extern int yydebug;
       know about them.  */
    enum yytokentype {
      INTEGER = 258,
-     FLOATNUM = 259,
-     VARIABLE = 260,
-     WHILE = 261,
-     FOR = 262,
-     IF = 263,
-     PRINT = 264,
-     INCREMENT = 265,
-     DECREMENT = 266,
-     REPEAT = 267,
-     UNTIL = 268,
-     TRUE = 269,
-     FALSE = 270,
-     CONST = 271,
-     INT = 272,
-     FLOAT = 273,
-     LONG = 274,
-     BOOL = 275,
-     DOUBLE = 276,
-     VOID = 277,
-     CASE = 278,
-     BREAK = 279,
-     SWITCH = 280,
-     DEFAULT = 281,
-     IFX = 282,
-     ELSE = 283,
-     OR = 284,
-     AND = 285,
-     NOT = 286,
-     NE = 287,
-     EQ = 288,
-     LE = 289,
-     GE = 290,
-     UMINUS = 291
+     CHARACTER = 259,
+     FLOATNUM = 260,
+     VARIABLE = 261,
+     WHILE = 262,
+     FOR = 263,
+     IF = 264,
+     PRINT = 265,
+     INCREMENT = 266,
+     DECREMENT = 267,
+     REPEAT = 268,
+     UNTIL = 269,
+     TRUE = 270,
+     FALSE = 271,
+     CONST = 272,
+     INT = 273,
+     FLOAT = 274,
+     LONG = 275,
+     BOOL = 276,
+     DOUBLE = 277,
+     VOID = 278,
+     CHAR = 279,
+     CASE = 280,
+     BREAK = 281,
+     SWITCH = 282,
+     DEFAULT = 283,
+     IFX = 284,
+     ELSE = 285,
+     OR = 286,
+     AND = 287,
+     NOT = 288,
+     NE = 289,
+     EQ = 290,
+     LE = 291,
+     GE = 292,
+     UMINUS = 293
    };
 #endif
 /* Tokens.  */
 #define INTEGER 258
-#define FLOATNUM 259
-#define VARIABLE 260
-#define WHILE 261
-#define FOR 262
-#define IF 263
-#define PRINT 264
-#define INCREMENT 265
-#define DECREMENT 266
-#define REPEAT 267
-#define UNTIL 268
-#define TRUE 269
-#define FALSE 270
-#define CONST 271
-#define INT 272
-#define FLOAT 273
-#define LONG 274
-#define BOOL 275
-#define DOUBLE 276
-#define VOID 277
-#define CASE 278
-#define BREAK 279
-#define SWITCH 280
-#define DEFAULT 281
-#define IFX 282
-#define ELSE 283
-#define OR 284
-#define AND 285
-#define NOT 286
-#define NE 287
-#define EQ 288
-#define LE 289
-#define GE 290
-#define UMINUS 291
+#define CHARACTER 259
+#define FLOATNUM 260
+#define VARIABLE 261
+#define WHILE 262
+#define FOR 263
+#define IF 264
+#define PRINT 265
+#define INCREMENT 266
+#define DECREMENT 267
+#define REPEAT 268
+#define UNTIL 269
+#define TRUE 270
+#define FALSE 271
+#define CONST 272
+#define INT 273
+#define FLOAT 274
+#define LONG 275
+#define BOOL 276
+#define DOUBLE 277
+#define VOID 278
+#define CHAR 279
+#define CASE 280
+#define BREAK 281
+#define SWITCH 282
+#define DEFAULT 283
+#define IFX 284
+#define ELSE 285
+#define OR 286
+#define AND 287
+#define NOT 288
+#define NE 289
+#define EQ 290
+#define LE 291
+#define GE 292
+#define UMINUS 293
 
 
 
@@ -124,17 +128,18 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 2058 of yacc.c  */
-#line 30 "theyac.y"
+#line 33 "theyac.y"
 
     int iValue;                 /* integer value */
     float fValue;               /* Float Value */
+    char cValue;
     char sIndex;                /* symbol table index */
     nodeType *nPtr;             /* node pointer */
     char * sChar ; 
 
 
 /* Line 2058 of yacc.c  */
-#line 138 "y.tab.h"
+#line 143 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

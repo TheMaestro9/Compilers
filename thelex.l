@@ -20,7 +20,8 @@ int scope = 0 ;
 "long" { return LONG;}
 "bool" { return BOOL; }
 "void" { return VOID;}
-"break" {return BREAK; } 
+"break" {return BREAK; }
+"char" {return CHAR;}
 "case" {return CASE ; } 
 "switch" {return SWITCH; } 
 "default" {return DEFAULT;}
@@ -30,6 +31,7 @@ int scope = 0 ;
 "true" {return TRUE ; } 
 "const" {return CONST ; }
 "\n"     ++yylineno;
+'[a-zA-z]' {yylval.cValue = yytext[1]; return CHARACTER;}
 ([a-zA-Z]+[0-9_a-zA-Z]*) {   yylval.sIndex = *yytext - 'a';return VARIABLE ; }
 
 [1-9][0-9]*|0 { yylval.iValue=atoi(yytext) ;  return INTEGER;}
