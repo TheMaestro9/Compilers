@@ -216,8 +216,15 @@ swcase:
 	SWITCH '(' VARIABLE ')'  '{'case '}'  { $$ = opr(SWITCH,2, id($3) , $6 ) ;} 
 	; 
 case: 
-	 CASE INTEGER ':' stmt BREAK ';' case {  $$ = opr(CASE, 3, con($2), $4,$7);}
-	|DEFAULT ':' stmt BREAK ';' case     {  $$ = opr(DEFAULT,2,$3,$6);}
+	 CASE INTEGER ':' stmt_list BREAK ';' case { 
+						 int i = 0  ; 
+						 for ( i ; i < 26 ; i ++ ) 
+							{
+								if ( scopes[i] > scope ) 
+									sym [ i ] = -1 ; 
+							}
+	 $$ = opr(CASE, 3, con($2), $4,$7);}
+	|DEFAULT ':' stmt_list BREAK ';' case     {  $$ = opr(DEFAULT,2,$3,$6);}
 	|				  {  $$ = opr(';', 2, NULL, NULL);}
 	;
 
@@ -459,15 +466,17 @@ int ex(nodeType *p , int RegNum )
             break;
 
 	case FOR :
-	    lbl++;
-            printf("L%03d:\n", lbl1 = lbl++);
+	    lbl1 = lbl + 1 ; 
+	    lbl2 = lbl ; 
+	    lbl = lbl + 2 ; 
+            printf("L%03d:\n", lbl1);
             ex(p->opr.op[1],RegNum);
-            printf("\tjz\tL%03d\n", lbl2 = lbl++);
+            printf("\tjz\tL%03d\n", lbl2);
             ex(p->opr.op[3],RegNum+1);
 	    ex(p->opr.op[2],RegNum+2);
             printf("\tjmp\tL%03d\n", lbl1);
             printf("L%03d:\n", lbl2);
-	    lbl--;
+	    
             break;
 
 	case SWITCH: 

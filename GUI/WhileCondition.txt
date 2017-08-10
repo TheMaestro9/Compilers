@@ -1,5 +1,6 @@
 int x=13;
-while(x!=13)
+int y=3;
+while(y!=13)
 {
 x++;
 }

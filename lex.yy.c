@@ -784,7 +784,7 @@ YY_RULE_SETUP
 case 12:
 YY_RULE_SETUP
 #line 23 "thelex.l"
-{return BREAK; }
+{ return BREAK; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
@@ -794,7 +794,7 @@ YY_RULE_SETUP
 case 14:
 YY_RULE_SETUP
 #line 25 "thelex.l"
-{return CASE ; } 
+{  return CASE ; } 
 	YY_BREAK
 case 15:
 YY_RULE_SETUP

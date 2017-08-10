@@ -1,27 +1,9 @@
-int x=23;
-int h=0;
+int x = 9 ; 
+while( x == 9  ) 
+{ 
+	int y = 8 ; 
+	if ( y > 8 ) 
+	y ++ ;
+} 
 
-switch(x)
-{
-case 2:
-h=2;
-break;
-case 23:
-for(int i=0;i<5;i++)
-{
-y=23;
-x++;
-}
-break;
-case 3:
-if(h==8)
-{
-h=3;
-int k;
-}
-break;
-default:
-h=2;
-break;
-}
-int k=2;
+int y = 7 ; 

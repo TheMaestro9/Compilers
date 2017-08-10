@@ -20,9 +20,9 @@ int scope = 0 ;
 "long" { return LONG;}
 "bool" { return BOOL; }
 "void" { return VOID;}
-"break" {return BREAK; }
+"break" { return BREAK; }
 "char" {return CHAR;}
-"case" {return CASE ; } 
+"case" {  return CASE ; } 
 "switch" {return SWITCH; } 
 "default" {return DEFAULT;}
 "repeat" {return REPEAT ; } 
